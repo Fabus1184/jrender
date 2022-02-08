@@ -9,11 +9,11 @@ public class Vertex {
         this.z = z;
     }
 
-    public String toString(){
+    public String toString() {
         return "(" + x + ", " + y + ", " + z + ")";
     }
 
-    public Vertex cross(Vertex v){
+    public Vertex cross(Vertex v) {
         return new Vertex(
                 this.y * v.z - this.z * v.y,
                 this.z * v.x - this.x * v.z,
@@ -21,15 +21,15 @@ public class Vertex {
         );
     }
 
-    public double magnitude(){
+    public double magnitude() {
         return Math.sqrt(Arrays.stream(new double[]{x, y, z}).map(i -> i * i).sum());
     }
 
-    public double angle(Vertex v){
+    public double angle(Vertex v) {
         return Math.acos(this.dot(v) / (this.magnitude() * v.magnitude()));
     }
 
-    public double dot(Vertex v){
+    public double dot(Vertex v) {
         return this.x * v.x + this.y * v.y + this.z * v.z;
     }
 
@@ -49,11 +49,19 @@ public class Vertex {
         );
     }
 
-    public Vertex div(double d){
+    public Vertex mul(double d) {
         return new Vertex(
-          this.x / d,
-          this.y / d,
-          this.z / d
+                this.x * d,
+                this.y * d,
+                this.z * d
+        );
+    }
+
+    public Vertex div(double d) {
+        return new Vertex(
+                this.x / d,
+                this.y / d,
+                this.z / d
         );
     }
 

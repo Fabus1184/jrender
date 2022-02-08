@@ -1,6 +1,11 @@
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 
 public class Rectangle implements Paintable {
     Vertex a, b, c, d;
@@ -47,29 +52,35 @@ public class Rectangle implements Paintable {
         );
     }
 
-    @Override
-    public void draw(Graphics2D g, Color c, Color d, ArrayList<Vertex[]> drawn) {
-        if (this.normal().angle(new Vertex(0, 0, -1)) > Math.PI / 2 || c == Color.MAGENTA) return;
+    public Vertex center() {
+        return new Vertex(this.a.x + this.c.x / 2, this.a.y + this.c.y, this.a.z + this.c.z);
+    }
 
-        g.setColor(c);
-        g.fillPolygon(
-                new int[]{
-                        (int) this.a.x, (int) this.b.x, (int) this.c.x, (int) this.d.x
-                },
-                new int[]{
-                        (int) this.a.y, (int) this.b.y, (int) this.c.y, (int) this.d.y
-                },
-                4
-        );
+    @Override
+    public void draw(Graphics2D g, Color c, Color d, ArrayList<Vertex[]> drawn, boolean wireframe) {
+        if (!wireframe && this.normal().angle(new Vertex(0, 0, -1)) > Math.PI / 2) return;
+
+        if (!wireframe) {
+            g.setColor(c);
+            g.fillPolygon(
+                    new int[]{
+                            (int) Math.round(this.a.x), (int) Math.round(this.b.x), (int) Math.round(this.c.x), (int) Math.round(this.d.x)
+                    },
+                    new int[]{
+                            (int) Math.round(this.a.y), (int) Math.round(this.b.y), (int) Math.round(this.c.y), (int) Math.round(this.d.y)
+                    },
+                    4
+            );
+        }
 
         g.setColor(d);
-
         for (int i = 0; i < paintList.length - 1; i++) {
             if (drawn.contains(new Vertex[]{this.paintList[i], this.paintList[i + 1]})) return;
             Path2D p = new Path2D.Double();
             p.moveTo(this.paintList[i].x, this.paintList[i].y);
             p.lineTo(this.paintList[i + 1].x, this.paintList[i + 1].y);
             p.closePath();
+            p.setWindingRule(Path2D.WIND_EVEN_ODD);
             g.draw(p);
             drawn.add(new Vertex[]{this.paintList[i], this.paintList[i + 1]});
         }

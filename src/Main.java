@@ -1,8 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -17,30 +18,46 @@ public class Main {
     static JPanel p;
 
     static double x = 0;
-    static double y = Math.PI * 2 / 3;
-    static double z = Math.PI * 4 / 3;
+    static double y = 0;
+    static double z = 0;
 
     public static void paint(Rectangle[] rs, int width, int height) {
         if (bi.getWidth() != width || bi.getHeight() != height) {
             bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             g = bi.createGraphics();
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            ((Graphics2D) p.getGraphics()).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.translate(width / 2, height / 2);
         }
 
         g.clearRect(-width / 2, -height / 2, width, height);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         if (x > Math.PI * 2) x = x % (Math.PI * 2);
         if (y > Math.PI * 2) y = y % (Math.PI * 2);
         if (z > Math.PI * 2) z = z % (Math.PI * 2);
 
         ArrayList<Vertex[]> drawn = new ArrayList<>();
-        for (Rectangle r : rs) r.rotatex(x).rotatey(y).rotatez(z).draw(g, Color.BLUE, Color.YELLOW, drawn);
+        for (Rectangle r : rs) r.rotatex(x).rotatey(y).rotatez(z).draw(g, Color.DARK_GRAY, Color.GREEN, drawn, false);
 
-        x += 0.015;
-        y += 0.015;
-        z += 0.015;
+        x += 0.0075;
+        y += 0.0075;
+        z += 0.0075;
+
+        BufferedImage i = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = i.createGraphics();
+
+        double ax = rs[0].rotatex(x).rotatey(y).rotatez(z).normal().angle(new Vertex(1, 0, 0));
+        double ay = rs[0].rotatex(x).rotatey(y).rotatez(z).normal().angle(new Vertex(0, 1, 0));
+        double az = rs[0].rotatex(x).rotatey(y).rotatez(z).normal().angle(new Vertex(0, 0, 1));
+
+        Vertex middle = rs[0].a.sub(rs[0].c).div(2);
+
+        g2.fillRect(0, 0, width, height);
+
+        g2.translate((float) width / 2, (float) height / 2);
+        AffineTransform t = new AffineTransform();
+
+        t.scale(0.5, 0.5);
+        g.drawImage(i, t, null);
 
         p.getGraphics().drawImage(bi, 0, 0, null);
     }
@@ -86,10 +103,11 @@ public class Main {
         p = new JPanel();
 
         f.add(p);
+
         f.setSize(800, 600);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.setVisible(true);
 
-        task = executor.scheduleAtFixedRate(() -> paint(rs, f.getWidth(), f.getHeight()), 0, 15, TimeUnit.MILLISECONDS);
+        task = executor.scheduleAtFixedRate(() -> paint(rs, f.getWidth(), f.getHeight()), 0, 8, TimeUnit.MILLISECONDS);
     }
 }

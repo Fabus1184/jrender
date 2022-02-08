@@ -1,32 +1,44 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
+    static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    static volatile ScheduledFuture<?> task;
+
+    static BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+    static Graphics2D g;
+    static JPanel p;
+
     static double x = 0;
     static double y = Math.PI * 2 / 3;
     static double z = Math.PI * 4 / 3;
 
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private volatile ScheduledFuture<?> task;
+    public static void paint(Rectangle[] rs, int width, int height) {
+        if (bi.getWidth() != width || bi.getHeight() != height) {
+            bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            g = bi.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.translate(width / 2, height / 2);
+        }
 
-    public static void paint(Graphics2D g, Rectangle[] rs, int width, int height) {
-        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = bi.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.translate(width / 2, height / 2);
+        g.clearRect(-width / 2, -height / 2, width, height);
+
         if (x > Math.PI * 2) x = x % (Math.PI * 2);
         if (y > Math.PI * 2) y = y % (Math.PI * 2);
         if (z > Math.PI * 2) z = z % (Math.PI * 2);
 
-        for (Rectangle r : rs) r.rotatex(x).rotatey(y).rotatez(z).draw(g2d, Color.BLUE);
+        for (Rectangle r : rs) r.rotatex(x).rotatey(y).rotatez(z).draw(g, Color.BLUE);
 
-        x += 0.02;
-        y += 0.02;
-        z += 0.02;
+        x += 0.015;
+        y += 0.015;
+        z += 0.015;
 
-        g.drawImage(bi, 0, 0, null);
+        p.getGraphics().drawImage(bi, 0, 0, null);
     }
 
     public static void main(String[] args) {
@@ -67,21 +79,13 @@ public class Main {
                 new Rectangle(c, b, bs, cs)
         };
 
-        JPanel p = new JPanel();
+        p = new JPanel();
+
         f.add(p);
         f.setSize(800, 600);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.setVisible(true);
 
-        new Thread(() -> {
-            while (true) {
-                paint((Graphics2D) p.getGraphics(), rs, f.getWidth(), f.getHeight());
-                try {
-                    Thread.sleep(16);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        task = executor.scheduleAtFixedRate(() -> paint(rs, f.getWidth(), f.getHeight()), 0, 15, TimeUnit.MILLISECONDS);
     }
 }

@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -23,6 +25,7 @@ public class Main {
             bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             g = bi.createGraphics();
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ((Graphics2D) p.getGraphics()).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.translate(width / 2, height / 2);
         }
 
@@ -32,7 +35,8 @@ public class Main {
         if (y > Math.PI * 2) y = y % (Math.PI * 2);
         if (z > Math.PI * 2) z = z % (Math.PI * 2);
 
-        for (Rectangle r : rs) r.rotatex(x).rotatey(y).rotatez(z).draw(g, Color.BLUE);
+        ArrayList<Vertex[]> drawn = new ArrayList<>();
+        for (Rectangle r : rs) r.rotatex(x).rotatey(y).rotatez(z).draw(g, Color.BLUE, Color.YELLOW, drawn);
 
         x += 0.015;
         y += 0.015;

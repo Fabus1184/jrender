@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.geom.Path2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Triangle implements Paintable {
@@ -41,7 +42,7 @@ public class Triangle implements Paintable {
     }
 
     @Override
-    public void draw(Graphics2D g, Color c) {
+    public void draw(Graphics2D g, Color c, Color d, ArrayList<Vertex[]> drawn) {
         Path2D p = new Path2D.Double();
         p.moveTo(this.paintList[0].x, this.paintList[0].y);
         Arrays.stream(this.paintList).toList().forEach(v -> p.lineTo(v.x, v.y));

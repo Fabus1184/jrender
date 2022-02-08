@@ -1,6 +1,6 @@
 import java.awt.*;
 import java.awt.geom.Path2D;
-import java.util.Arrays;
+import java.util.ArrayList;
 
 public class Rectangle implements Paintable {
     Vertex a, b, c, d;
@@ -48,7 +48,7 @@ public class Rectangle implements Paintable {
     }
 
     @Override
-    public void draw(Graphics2D g, Color c) {
+    public void draw(Graphics2D g, Color c, Color d, ArrayList<Vertex[]> drawn) {
         if (this.normal().angle(new Vertex(0, 0, -1)) > Math.PI / 2 || c == Color.MAGENTA) return;
 
         g.setColor(c);
@@ -62,12 +62,16 @@ public class Rectangle implements Paintable {
                 4
         );
 
-        g.setColor(Color.WHITE);
+        g.setColor(d);
 
-        Path2D p = new Path2D.Double();
-        p.moveTo(this.paintList[0].x, this.paintList[0].y);
-        Arrays.stream(this.paintList).toList().forEach(v -> p.lineTo(v.x, v.y));
-        p.closePath();
-        g.draw(p);
+        for (int i = 0; i < paintList.length - 1; i++) {
+            if (drawn.contains(new Vertex[]{this.paintList[i], this.paintList[i + 1]})) return;
+            Path2D p = new Path2D.Double();
+            p.moveTo(this.paintList[i].x, this.paintList[i].y);
+            p.lineTo(this.paintList[i + 1].x, this.paintList[i + 1].y);
+            p.closePath();
+            g.draw(p);
+            drawn.add(new Vertex[]{this.paintList[i], this.paintList[i + 1]});
+        }
     }
 }

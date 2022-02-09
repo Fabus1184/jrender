@@ -3,7 +3,7 @@ import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Triangle implements Paintable {
+public class Triangle {
     Vertex v1, v2, v3;
     Vertex[] paintList;
 
@@ -25,7 +25,6 @@ public class Triangle implements Paintable {
         );
     }
 
-    @Override
     public void draw(Graphics2D g, Color c, Color d, ArrayList<Vertex[]> drawn, boolean wireframe) {
         Path2D p = new Path2D.Double();
         p.moveTo(this.paintList[0].x, this.paintList[0].y);

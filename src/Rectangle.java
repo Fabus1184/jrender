@@ -2,7 +2,7 @@ import java.awt.*;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
-public class Rectangle implements Paintable {
+public class Rectangle {
     Vertex a, b, c, d;
     Vertex[] paintList;
     Texture texture;
@@ -48,8 +48,7 @@ public class Rectangle implements Paintable {
         return new Vertex(this.a.x + this.c.x / 2, this.a.y + this.c.y, this.a.z + this.c.z);
     }
 
-    @Override
-    public void draw(Graphics2D g, Color c, Color d, ArrayList<Vertex[]> drawn, boolean wireframe) {
+    public void draw(Graphics2D g, Color c, Color d, ArrayList<Vertex[]> drawn, boolean wireframe, Vertex light) {
         if (!wireframe && this.normal().angle(new Vertex(0, 0, -1)) > Math.PI / 2) return;
 
         if (!wireframe) {
@@ -69,8 +68,13 @@ public class Rectangle implements Paintable {
                 int height = this.texture.bi.getHeight();
                 for (int x = 0; x < width; x++) {
                     for (int y = 0; y < height; y++) {
-                        g.setColor(new Color(this.texture.bi.getRGB(x, y)));
                         Vertex v = this.d.add(this.c.sub(this.d).div(width).mul(x)).add(this.a.sub(this.d).div(height).mul(y));
+                        int l = (int) Math.round(50 * Math.exp(-2 * Math.pow(v.angle(light) - Math.PI, 2)));
+
+                        Color col = new Color(this.texture.bi.getRGB(x, y));
+                        col = new Color(Math.min(col.getRed() + l, 255), Math.min(col.getGreen() + l, 255), Math.min(col.getBlue() + l, 255));
+                        g.setColor(col);
+
                         g.drawRect(
                                 (int) Math.round(v.x),
                                 (int) Math.round(v.y),

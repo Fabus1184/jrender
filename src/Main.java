@@ -10,15 +10,17 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    static final Vertex light = new Vertex(-1, 1, 1);
     static volatile ScheduledFuture<?> task;
-
     static BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
     static Graphics2D g;
     static JPanel p;
-
     static double x = 60 / Math.PI * 2;
     static double y = 0;
     static double z = 0;
+
+    static double fps = 0;
+    static long lastFrame = 0;
 
     public static void paint(Rectangle[] rs, int width, int height) {
         if (bi.getWidth() != width || bi.getHeight() != height) {
@@ -35,13 +37,21 @@ public class Main {
         if (z > Math.PI * 2) z = z % (Math.PI * 2);
 
         ArrayList<Vertex[]> drawn = new ArrayList<>();
-        for (Rectangle r : rs) r.rotatexyz(x, y, z).draw(g, Color.DARK_GRAY, Color.GREEN, drawn, false);
+        for (Rectangle r : rs) r.rotatexyz(x, y, z).draw(g, Color.DARK_GRAY, Color.GREEN, drawn, false, light);
 
         x += 0.015;
         y += 0.015;
         z += 0.015;
 
+        char[] f = ("" + fps).toCharArray();
+        g.setColor(Color.GREEN);
+        g.drawChars(f, 0, Math.min(f.length, 5), -width / 2 + 20, -height / 2 + 20);
+
         p.getGraphics().drawImage(bi, 0, 0, null);
+
+        long time = System.currentTimeMillis();
+        fps = 1000d / (time - lastFrame);
+        lastFrame = time;
     }
 
     public static void main(String[] args) {
@@ -107,6 +117,6 @@ public class Main {
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.setVisible(true);
 
-        task = executor.scheduleAtFixedRate(() -> paint(rs, f.getWidth(), f.getHeight()), 0, 8, TimeUnit.MILLISECONDS);
+        task = executor.scheduleAtFixedRate(() -> paint(rs, f.getWidth(), f.getHeight()), 0, 16, TimeUnit.MILLISECONDS);
     }
 }

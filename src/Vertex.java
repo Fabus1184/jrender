@@ -1,5 +1,8 @@
 import java.util.Arrays;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+
 public class Vertex {
     double x, y, z;
 
@@ -74,30 +77,11 @@ public class Vertex {
         );
     }
 
-    public Vertex rotatex(double theta) {
-        theta = theta % (Math.PI * 2);
+    public Vertex rotatexyz(double a, double b, double c) {
         return this.mmul(new Matrix(new double[]{
-                1, 0, 0,
-                0, Math.cos(theta), -Math.sin(theta),
-                0, Math.sin(theta), Math.cos(theta)
-        }));
-    }
-
-    public Vertex rotatey(double theta) {
-        theta = theta % (Math.PI * 2);
-        return this.mmul(new Matrix(new double[]{
-                Math.cos(theta), 0, Math.sin(theta),
-                0, 1, 0,
-                -Math.sin(theta), 0, Math.cos(theta)
-        }));
-    }
-
-    public Vertex rotatez(double theta) {
-        theta = theta % (Math.PI * 2);
-        return this.mmul(new Matrix(new double[]{
-                Math.cos(theta), -Math.sin(theta), 0,
-                Math.sin(theta), Math.cos(theta), 0,
-                0, 0, 1
+                cos(b) * cos(c), sin(a) * sin(b) * cos(c) - cos(a) * sin(c), cos(a) * sin(b) * cos(c) + sin(a) * sin(c),
+                cos(b) * sin(c), sin(a) * sin(b) * sin(c) + cos(a) * cos(c), cos(a) * sin(b) * sin(c) - sin(a) * cos(c),
+                -sin(b), sin(a) * cos(b), cos(a) * cos(b)
         }));
     }
 }

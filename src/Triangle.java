@@ -17,27 +17,11 @@ public class Triangle implements Paintable {
         };
     }
 
-    public Triangle rotatex(double theta) {
+    public Triangle rotatexyz(double x, double y, double z) {
         return new Triangle(
-                this.v1.rotatex(theta),
-                this.v2.rotatex(theta),
-                this.v3.rotatex(theta)
-        );
-    }
-
-    public Triangle rotatey(double theta) {
-        return new Triangle(
-                this.v1.rotatey(theta),
-                this.v2.rotatey(theta),
-                this.v3.rotatey(theta)
-        );
-    }
-
-    public Triangle rotatez(double theta) {
-        return new Triangle(
-                this.v1.rotatez(theta),
-                this.v2.rotatez(theta),
-                this.v3.rotatez(theta)
+                this.v1.rotatexyz(x, y, z),
+                this.v2.rotatexyz(x, y, z),
+                this.v3.rotatexyz(x, y, z)
         );
     }
 
